@@ -1,0 +1,103 @@
+Day 2: YouTube API Data Collection
+
+Objective: Develop a Python script to fetch data from the YouTube API, such as channel information, video details, and engagement metrics (likes, comments, etc.). This script should be able to collect data for multiple channels and store it in a structured format (e.g., CSV or JSON). Use the Google APIs Client Library for Python to interact with the YouTube API.
+
+Step 1: Import required libraries and set up the API client
+
+import os
+import csv
+import json
+from googleapiclient.discovery import build
+
+# Set up the YouTube API client
+api_key = os.environ.get("YOUTUBE_API_KEY")
+youtube = build("youtube", "v3", developerKey=api_key)
+Step 2: Define functions to fetch channel information and video details
+
+def get_channel_info(channel_id):
+    request = youtube.channels().list(
+        part="snippet,statistics",
+        id=channel_id
+    )
+    response = request.execute()
+    return response["items"][0]
+
+def get_videos(channel_id, max_results=50):
+    request = youtube.search().list(
+        part="id",
+        channelId=channel_id,
+        maxResults=max_results,
+        order="date",
+        type="video"
+    )
+    response = request.execute()
+    video_ids = [item["id"]["videoId"] for item in response["items"]]
+    
+    request = youtube.videos().list(
+        part="snippet,statistics",
+        id=",".join(video_ids)
+    )
+    response = request.execute()
+    return response["items"]
+Step 3: Fetch data for multiple channels and store it in a structured format
+
+def fetch_data(channel_ids):
+    all_channels = []
+    all_videos = []
+
+    for channel_id in channel_ids:
+        channel_info = get_channel_info(channel_id)
+        all_channels.append(channel_info)
+
+        videos = get_videos(channel_id)
+        all_videos.extend(videos)
+
+    return all_channels, all_videos
+
+def save_data_to_csv(channels, videos):
+    with open("channels.csv", "w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = ["id", "title", "subscriberCount", "viewCount", "videoCount"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for channel in channels:
+            writer.writerow({
+                "id": channel["id"],
+                "title": channel["snippet"]["title"],
+                "subscriberCount": channel["statistics"]["subscriberCount"],
+                "viewCount": channel["statistics"]["viewCount"],
+                "videoCount": channel["statistics"]["videoCount"]
+            })
+
+    with open("videos.csv", "w", newline="", encoding="utf-8") as csvfile:
+        fieldnames = ["id", "title", "channelId", "publishedAt", "viewCount", "likeCount", "dislikeCount", "commentCount"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for video in videos:
+            writer.writerow({
+                "id": video["id"],
+                "title": video["snippet"]["title"],
+                "channelId": video["snippet"]["channelId"],
+                "publishedAt": video["snippet"]["publishedAt"],
+                "viewCount": video["statistics"]["viewCount"],
+                "likeCount": video["statistics"]["likeCount"],
+                "dislikeCount": video["statistics"]["dislikeCount"],
+                "commentCount": video["statistics"]["commentCount"]
+            })
+
+def save_data_to_json(channels, videos):
+    data = {
+        "channels": channels,
+        "videos": videos
+    }
+
+    with open("data.json", "w", encoding="utf-8") as jsonfile:
+        json.dump(data, jsonfile, ensure_ascii=False, indent=4)
+Step 4: Run the script to fetch and save data
+
+if __name__ == "__main__":
+    channel_ids = ["UCX6OQ3DkcsbYNE6H8uQQuVA", "UCY1kMZp36IQSyNx_9h4mpCg"]  # Add more channel IDs as needed
+    channels, videos = fetch_data(channel_ids)
+
+    save_data_to_csv(channels, videos)
+    save_data_to_json(channels, videos)
+By the end of Day 2, Mohamed should have a working Python script that fetches data from the YouTube API for multiple channels, including channel information, video details, and engagement metrics. The script should save the collected data in a structured format, such as CSV or JSON.

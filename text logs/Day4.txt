@@ -1,0 +1,89 @@
+Day 4: Complete the Data Visualization dashboard and implement the Automation script
+
+Objective: Complete the Data Visualization dashboard by adding any remaining visualizations and refining the layout. Implement a Python script to automate the data collection, processing, and analysis steps.
+
+Step 1: Finish the Data Visualization dashboard
+
+Complete any remaining data visualization components and integrate them into the dashboard layout.
+Refine the layout, styling, and interactivity of the dashboard using React.py, HTML, and CSS.
+Step 2: Implement the Automation script
+
+Import the required libraries, such as Schedule and APScheduler, at the beginning of the script:
+   import schedule
+   from apscheduler.schedulers.background import BackgroundScheduler
+Define a function to automate the data collection, processing, and analysis steps:
+   def automate_data_pipeline(channel_ids):
+       # Collect data
+       channels, videos = fetch_data(channel_ids)
+
+       # Save data
+       save_data_to_csv(channels, videos)
+
+       # Process and analyze data
+       videos_df = pd.read_csv("videos.csv")
+       videos_df = calculate_engagement_rates(videos_df)
+
+       # Update the dashboard
+       # This step will depend on the implementation of the dashboard using React.py
+Schedule the automation function to run at regular intervals (e.g., daily) using Schedule or APScheduler:
+   scheduler = BackgroundScheduler()
+   scheduler.add_job(lambda: automate_data_pipeline(channel_ids), "interval", hours=24)
+   scheduler.start()
+Day 5: Set up GitHub Actions for CI/CD and deploy the project on a Linux server (Debian)
+
+Objective: Set up GitHub Actions for continuous integration and continuous deployment (CI/CD) of the project. Deploy the project on a Linux server running Debian.
+
+Step 1: Set up GitHub Actions for CI/CD
+
+Create a .github/workflows/main.yml file in the project repository.
+Configure the GitHub Actions workflow to build, test, and deploy the project using the GitHub Actions documentation as a reference. For example:
+   name: CI/CD
+
+   on:
+     push:
+       branches:
+         - main
+
+   jobs:
+     build:
+       runs-on: ubuntu-latest
+       steps:
+         - name: Checkout repository
+           uses: actions/checkout@v2
+         - name: Set up Python
+           uses: actions/setup-python@v2
+           with:
+             python-version: 3.9
+         - name: Install dependencies
+           run: pip install -r requirements.txt
+         - name: Run tests
+           run: pytest
+
+     deploy:
+       runs-on: ubuntu-latest
+       needs: build
+       steps:
+         - name: Deploy to server
+           # Configure the deployment steps based on your chosen hosting provider
+Step 2: Deploy the project on a Linux server (Debian)
+
+Set up a Linux server running Debian with the required dependencies, such as Python and any necessary libraries.
+Configure the server to run the project, including the Data Visualization dashboard and the Automation script.
+Deploy the project to the server using the CI/CD pipeline set up with GitHub Actions.
+Day 6-7: Debug, refine, and optimize the project
+
+Objective: Debug, refine, and optimize the project. Perform final testing and update the GitHub repository.
+
+Step 1: Debug and refine the project
+
+Test the project thoroughly, identifying and fixing any bugs or issues.
+Refine the project by making any necessary improvements to the code, visualizations, or layout.
+Step 2: Optimize the project
+
+Review the project to identify areas for optimization, such as improving the performance or efficiency of the data processing and analysis steps.
+Implement any optimizations and test their effectiveness.
+Step 3: Perform final testing and update the GitHub repository
+
+Perform a final round of testing to ensure the project is working as expected.
+Update the GitHub repository with the final version of the project, including any fixes, refinements, or optimizations made during Days 6 and 7.
+By the end of Days 4-7, Mohamed should have a fully functional project, including a complete Data Visualization dashboard, an Automation script for data collection and analysis, and a CI/CD pipeline set up with GitHub Actions. The project should be deployed on a Linux server running Debian and thoroughly tested for any bugs or issues.

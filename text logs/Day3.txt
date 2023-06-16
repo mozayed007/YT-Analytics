@@ -1,0 +1,55 @@
+Day 3: Data Processing and Analysis, and starting with Data Visualization dashboard
+
+Objective: Create a Python script to process and analyze the collected data from the YouTube API, and start working on the Data Visualization dashboard using React.py, HTML, and CSS.
+
+Part 1: Data Processing and Analysis
+
+Step 1: Import required libraries and load the data
+
+import pandas as pd
+import numpy as np
+
+# Load data from CSV files
+channels_df = pd.read_csv("channels.csv")
+videos_df = pd.read_csv("videos.csv")
+Step 2: Define functions for data processing and analysis
+
+def calculate_engagement_rates(videos_df):
+    videos_df["engagement_rate"] = (videos_df["likeCount"] + videos_df["commentCount"]) / videos_df["viewCount"]
+    return videos_df
+
+def popular_video_categories(videos_df):
+    categories = videos_df["title"].str.extract(r"\[(.*?)\]").squeeze().value_counts()
+    return categories
+
+def video_upload_frequency(videos_df):
+    videos_df["publishedAt"] = pd.to_datetime(videos_df["publishedAt"])
+    videos_df["date"] = videos_df["publishedAt"].dt.date
+    frequency = videos_df.groupby("channelId")["date"].diff().value_counts().sort_index()
+    return frequency
+Step 3: Apply the functions to process and analyze the data
+
+videos_df = calculate_engagement_rates(videos_df)
+categories = popular_video_categories(videos_df)
+upload_frequency = video_upload_frequency(videos_df)
+Part 2: Start working on the Data Visualization dashboard
+
+Step 1: Set up the React.py project
+
+Create a new directory for the dashboard project and navigate to it in the terminal.
+Initialize the project with React.py by running:
+   python -m reactpy init
+Open the index.py file in the project directory and start building the dashboard using React.py, HTML, and CSS.
+Step 2: Create components for data visualizations
+
+Import the required libraries for data visualization, such as Plotly, at the beginning of the index.py file:
+   import plotly.express as px
+Create a function to generate a bar chart for popular video categories:
+   def render_category_chart(categories):
+       fig = px.bar(categories, x=categories.index, y=categories.values, labels={"x": "Category", "y": "Count"})
+       return fig.to_html(full_html=False)
+Create additional functions to generate other visualizations, such as line charts for video upload frequency and engagement rates.
+Step 3: Integrate the visualizations into the dashboard
+
+Create a layout for the dashboard using React.py, HTML, and CSS, and incorporate the visualization components created in Step 2.
+By the end of Day 3, Mohamed should have a working Python script for data processing and analysis, and he should have started working on the Data Visualization dashboard using React.py, HTML, and CSS. The dashboard should include components for various visualizations to help users understand the channel performance insights.

@@ -1,0 +1,57 @@
+youtube-channel-performance-analyzer/
+│
+├───backend/
+│   ├───api/
+│   │   ├───__init__.py
+│   │   └───youtube_api.py
+│   ├───data_processing/
+│   │   ├───__init__.py
+│   │   └───data_analysis.py
+│   ├───app.py
+│   └───requirements.txt
+│
+├───frontend/
+│   ├───static/
+│   │   └───css/
+│   │       └───styles.css
+│   ├───templates/
+│   │   └───index.html
+│   ├───views/
+│   │   ├───__init__.py
+│   │   └───dashboard.py
+│   ├───app.py
+│   └───requirements.txt
+│
+├───automation/
+│   ├───__init__.py
+│   └───automation.py
+│
+├───.github/
+│   └───workflows/
+│       └───ci_cd.yml
+│
+├───.gitignore
+├───LICENSE
+└───README.md
+Explanation of the updated structure:
+
+frontend/: This folder now contains the Flask frontend files.
+static/: This folder contains the static files (CSS, images, etc.) for the frontend.
+templates/: This folder contains the HTML templates for the frontend.
+views/: This folder contains the Python scripts that define the routes and views for the frontend.
+app.py: The main Flask application file that serves the frontend views.
+Now, the project is divided into three stages:
+
+Data Collection and Processing: The youtube_api.py script in the backend/api/ folder collects data from the YouTube API. The data_analysis.py script in the backend/data_processing/ folder processes and analyzes the collected data using Pandas and NumPy.
+Frontend and Data Visualization: The frontend/ folder contains the Flask-based web dashboard for visualizing the analyzed data. The dashboard.py script in the frontend/views/ folder defines the routes and views for the dashboard, rendering the templates and passing the processed data to them.
+Automation and CI/CD: The automation.py script in the automation/ folder implements the periodic fetching and updating of data from the YouTube API. The .github/workflows/ci_cd.yml file handles the setup of continuous integration and continuous deployment for the project.
+Keep in mind that using Flask for both backend and frontend will require you to adjust the way you visualize the data, as you won't be able to use React.js components. You might want to use a Python-based visualization library like Plotly or Bokeh to create interactive charts in the frontend.
+
+
+YouTube API Data Collection: The youtube_api.py script in the backend/api/ folder will handle fetching data from the YouTube API.
+Data Processing and Analysis: The data_analysis.py script in the backend/data_processing/ folder will be responsible for processing and analyzing the collected data using Pandas and NumPy.
+Data Visualization: The frontend/ folder contains the React.js-based web dashboard for visualizing the analyzed data using components like Chart.js and Dashboard.js.
+Automation: The automation.py script in the automation/ folder will implement the periodic fetching and updating of data from the YouTube API.
+GitHub Actions for CI/CD: The .github/workflows/ci_cd.yml file will handle the setup of continuous integration and continuous deployment for the project.
+Linux Administration and Networking: The project structure is designed to be easily deployed on a Linux server (Debian) using a web server like Nginx or Apache.
+This project structure should help you demonstrate your skills in Python, data analysis, web development, automation, CI/CD, and Linux administration to apply for the Mr. Beast YouTube Statistics Specialist role.
