@@ -7,7 +7,7 @@ from google.oauth2.credentials import Credentials
 import isodate
 
 # Set up your API key here
-Data_API_KEY = 'AIzaSyCWRFtlxzVZQVPFSCIdtYKaaBXEMaIZVE4'
+Data_API_KEY = 'Add_your_key'
 
 # Set up your API key here
 def load_csv(filename, columns=None):
@@ -80,7 +80,7 @@ def get_channel_id(channel_title):
     :return: A string representing the unique identifier of the channel.
     :rtype: str
     """
-    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=5&q={channel_title}&key={Data_API_KEY}'
+    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=50&q={channel_title}&key={Data_API_KEY}'
     data = fetch_data(url)
 
     for item in data.get('items', []):
@@ -151,7 +151,7 @@ def get_channel_statistics(channel_id):
             - video_count (int): The total number of videos uploaded to the channel.
             - topic_ids (list): A list of topic IDs that apply to the channel.
     """
-    
+    channel_stats = {}  
     url = f'https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet,brandingSettings,contentDetails,topicDetails&id={channel_id}&key={Data_API_KEY}'
     data = fetch_data(url)
     channel_data = data['items'][0]
@@ -174,7 +174,7 @@ def get_channel_statistics(channel_id):
         }
     else:
             print(f'Channel {channel_id} already exists in the database.')
-            channel_stats={}
+            
     return channel_stats
 
 
@@ -212,7 +212,13 @@ def get_video_statistics(channel_id, max_results):
     for video_id in video_ids:
         url = f'https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics,liveStreamingDetails&id={video_id}&key={Data_API_KEY}'
         data = fetch_data(url)
-        video_data = data['items'][0]
+        video_data = data.get('items')
+        if video_data:
+            video_data = video_data[0]
+        else:
+            # Handle the case when 'items' key is not found
+            print(f"Error: 'items' key not found in the data dictionary for video ID {video_id}")
+            continue
         if video_id not in video_stats_df['video_id'].values:
             video_stats = {
                 'video_id': video_id,
@@ -230,26 +236,25 @@ def get_video_statistics(channel_id, max_results):
                 'video_comments' : int(video_data['statistics'].get('commentCount', 0)),
                 'video_category_id': video_data['snippet']['categoryId'],
                 'video_live_streaming': {
-                'actual_start_time': video_data['liveStreamingDetails']['actualStartTime'] if 'liveStreamingDetails' in video_data else None,
-                'actual_end_time': video_data['liveStreamingDetails']['actualEndTime'] if 'liveStreamingDetails' in video_data else None,
-                'scheduled_start_time': video_data['liveStreamingDetails']['scheduledStartTime'] if 'liveStreamingDetails' in video_data else None,
-                'scheduled_end_time': video_data['liveStreamingDetails']['scheduledEndTime'] if 'liveStreamingDetails' in video_data else None,
-                'concurrent_viewers': video_data['liveStreamingDetails']['concurrentViewers'] if 'liveStreamingDetails' in video_data else None
-                }
+                        'actual_start_time': video_data.get('liveStreamingDetails', {}).get('actualStartTime' , None),
+                        'actual_end_time': video_data.get('liveStreamingDetails', {}).get('actualEndTime' , None),
+                        'scheduled_start_time': video_data.get('liveStreamingDetails', {}).get('scheduledStartTime', None),
+                        'scheduled_end_time' : video_data.get('liveStreamingDetails', {}).get('scheduledEndTime', None),
+                        'concurrent_viewers': video_data.get('liveStreamingDetails', {}).get('concurrentViewers', None)
+                        }
             }
             video_stats_list.append(video_stats)
         else:
                 print( f'Video ID {video_id} already exists in the database.')
                 continue
     return video_stats_list
-import isodate
 
 def get_playlist_duration(playlist_id, api_key):
     next_page_token = None
     total_duration = 0
 
     while True:
-        url = f'https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId={playlist_id}&maxResults=50&key={api_key}&pageToken={next_page_token or ""}'
+        url = f'https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId={playlist_id}&maxResults=500&key={api_key}&pageToken={next_page_token or ""}'
         data = fetch_data(url)
 
         video_ids = ','.join([item['contentDetails']['videoId'] for item in data['items']])
@@ -290,6 +295,7 @@ def get_playlist_statistics(channel_id, max_results):
         data = fetch_data(url)
         
         if 'items' not in data or len(data['items']) == 0:
+            print(f"Error: 'items' key not found or no items available in the data dictionary for playlist ID {playlist_id}")
             continue
 
         playlist_data = data['items'][0]
@@ -312,27 +318,28 @@ def get_playlist_statistics(channel_id, max_results):
 
 
 
-def save_to_csv(data, filename):
-    """
-    Save data to a CSV file.
+# def save_to_csv(data, filename):
+#     """
+#     Save data to a CSV file.
 
-    Args:
-        data (list or dict): The data to be saved.
-        filename (str): The name of the file to save the data in.
+#     Args:
+#         data (list or dict): The data to be saved.
+#         filename (str): The name of the file to save the data in.
 
-    Returns:
-        None
-    """
-    df = pd.DataFrame(data)
-    df.to_csv(filename, index=False)
+#     Returns:
+#         None
+#     """
+#     df = pd.DataFrame(data)
+#     df.to_csv(filename, index=False)
 
 def main():
-    """
-    Executes the main function which processes a list of YouTube channels represented by channel_titles.
-    For each channel, it retrieves its ID using the get_channel_id function and uses it to get channel statistics,
-    video statistics, and playlist statistics. The statistics are then stored in respective CSV files.
-    If a channel ID is not found, the function logs a message and skips the channel.
-    """
+    global channel_stats_df
+    global video_stats_df
+    global playlist_stats_df
+    # Initialize channel_stats before using it
+    channel_stats = []
+    channel_videos= []
+    channel_playlists = []
     channel_titles = [
         "MrBeast",
         "MrBeast Gaming",
@@ -341,40 +348,45 @@ def main():
         "PewDiePie",
         "Marques Brownlee",
         "xQc",
-        "Billie Eilish"
+        "Billie Eilish",
+        "Movieclips",
+        "Taylor Swift"
     ]
-    channel_stats_df = pd.DataFrame()
-    video_stats_df = pd.DataFrame()
-    playlist_stats_df = pd.DataFrame()
 
-    for channel_title  in channel_titles:
-        channel_id = get_channel_id(channel_title )
+    for channel_title in channel_titles:
+        channel_id = get_channel_id(channel_title)
         if not channel_id:
             print(f"Channel '{channel_title}' not found. Skipping.")
             continue
         print(f"Processing channel '{channel_title}' with ID: {channel_id}")
-        channel_stats = get_channel_statistics(channel_id)
-        channel_videos = get_video_statistics(channel_id, 100)
-        channel_playlists = get_playlist_statistics(channel_id, 25)
+        if channel_id not in channel_stats_df['channel_id'].values:
+            channel_stats = get_channel_statistics(channel_id) or []
+            if channel_stats:
+                channel_stats_df = pd.concat([channel_stats_df, pd.DataFrame([channel_stats])], ignore_index=True)
+        channel_videos = get_video_statistics(channel_id, 100) or []
+        for video in channel_videos:
+            if video['video_id'] not in video_stats_df['video_id'].values:
+                video_stats_df = pd.concat([video_stats_df, pd.DataFrame([video])], ignore_index=True)
+        channel_playlists = get_playlist_statistics(channel_id, 25) or []
+        for playlist in channel_playlists:
+            if playlist['playlist_id'] not in playlist_stats_df['playlist_id'].values:
+                playlist_stats_df = pd.concat([playlist_stats_df, pd.DataFrame([playlist])], ignore_index=True)
+
         print(f"- Channel Stats: {len(channel_stats)}")
         print(f"- Video Stats: {len(channel_videos)}")
         print(f"- Playlist Stats: {len(channel_playlists)}")
 
-        if channel_stats:
-            channel_stats_df = pd.DataFrame(channel_stats)  # Convert the list to a DataFrame
-            channel_stats_df = pd.concat([channel_stats_df, channel_stats], ignore_index=True)
-            channel_stats_df.to_csv('channels.csv', index=False)
-        if channel_videos:
-            channel_videos_df = pd.DataFrame(channel_videos)  # Convert the list to a DataFrame
-            video_stats_df = pd.concat([video_stats_df, channel_videos_df], ignore_index=True)
-            video_stats_df.to_csv('videos.csv', index=False)
-        if channel_playlists:      
-            channel_playlists_df = pd.DataFrame(channel_playlists)  # Convert the list to a DataFrame
-            playlist_stats_df = pd.concat([playlist_stats_df, channel_playlists_df], ignore_index=True)
-            playlist_stats_df.to_csv('playlists.csv', index=False)
-
-
         print(f"Finished processing channel '{channel_title}'\n")
+    # Remove duplicates from DataFrames
+    channel_stats_df = channel_stats_df.drop_duplicates(subset=['channel_id'])
+    video_stats_df = video_stats_df.drop_duplicates(subset=['video_id'])
+    playlist_stats_df = playlist_stats_df.drop_duplicates(subset=['playlist_id'])
+
+    # Save DataFrames to CSV files without row numbers
+    channel_stats_df.to_csv('channels.csv', index=False)
+    video_stats_df.to_csv('videos.csv', index=False)
+    playlist_stats_df.to_csv('playlists.csv', index=False)
+
 
 if __name__ == '__main__':
     main()

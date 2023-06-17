@@ -1,5 +1,7 @@
 # YouTube Channel Performance Analyzer
 
+**Disclaimer**: This is a basic project in its first stage of development, and it's under construction. Due to the use of a free YouTube API key, there are limitations on the number of requests and data points that can be fetched. 
+
 This project aims to develop a tool to analyze the performance of YouTube channels using the YouTube API, automation scripts, and data visualization techniques. It will leverage React.py, a new Python library, for the front-end, along with HTML and CSS. The project will incorporate GitHub Actions for CI/CD and showcase Mohamed's skills in Linux administration and networking.
 
 ## Table of Contents
