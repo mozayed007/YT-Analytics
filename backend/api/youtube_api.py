@@ -7,7 +7,7 @@ from google.oauth2.credentials import Credentials
 import isodate
 
 # Set up your API key here
-Data_API_KEY = 'AIzaSyCWRFtlxzVZQVPFSCIdtYKaaBXEMaIZVE4'
+Data_API_KEY = 'add your key'
 
 # Set up your API key here
 def load_csv(filename, columns=None):
